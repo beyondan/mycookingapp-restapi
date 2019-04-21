@@ -56,24 +56,23 @@ def gatherRecipeData(recipe_ids, cursor):
             result[recipe_id]['ingredients'].append(ingredient_name)
         except KeyError:
             result[recipe_id]['ingredients'] = [ingredient_name]
-
     # Get all directions 
     cursor.execute((
-        "SELECT recipe_id, step, direction "
-        "FROM Directions "
+        "SELECT recipe_id, step_order, step_starttime, step_endtime, step_text "
+        "FROM Steps "
         "WHERE " + format_in("recipe_id", recipe_ids)
     ))
-    for recipe_id, step, direction in cursor:
+    for recipe_id, step_order, step_starttime, step_endtime, step_text in cursor:
+        step = {
+            'step_order': step_order,
+            'step_starttime': step_starttime,
+            'step_endtime': step_endtime,
+            'step_text': step_text
+        } 
         try:
-            result[recipe_id]['directions'].append({
-                'step': step,
-                'direction': direction
-            })
+            result[recipe_id]['steps'].append(step)
         except KeyError:
-            result[recipe_id]['directions'] = [{
-                'step': step,
-                'direction': direction
-            }]
+            result[recipe_id]['steps'] = [step]
     
     return list(result.values())
 
